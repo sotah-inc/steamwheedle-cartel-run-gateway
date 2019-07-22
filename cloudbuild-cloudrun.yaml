@@ -1,0 +1,43 @@
+steps:
+#  - name: 'gcr.io/cloud-builders/docker'
+#    args: ['pull', 'gcr.io/$PROJECT_ID/steamwheedle-cartel/run/gateway/build:latest']
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [
+      'build',
+      '-f', './build-env.Dockerfile',
+      '-t', 'gcr.io/$PROJECT_ID/steamwheedle-cartel/run/gateway/build',
+#      '--cache-from', 'gcr.io/$PROJECT_ID/steamwheedle-cartel/run/gateway/build:latest',
+      '.'
+    ]
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['tag', 'gcr.io/$PROJECT_ID/steamwheedle-cartel/run/gateway/build', 'steamwheedle-cartel/run/gateway/build']
+
+#  - name: 'gcr.io/cloud-builders/docker'
+#    args: ['pull', 'gcr.io/$PROJECT_ID/steamwheedle-cartel/run/gateway/runtime:latest']
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [
+      'build',
+      '-f', './runtime-env.Dockerfile',
+      '-t', 'gcr.io/$PROJECT_ID/steamwheedle-cartel/run/gateway/runtime',
+#      '--cache-from', 'gcr.io/$PROJECT_ID/steamwheedle-cartel/run/gateway/runtime:latest',
+      '.'
+    ]
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [
+      'push',
+      'gcr.io/$PROJECT_ID/steamwheedle-cartel/run/gateway/runtime'
+    ]
+  - name: 'gcr.io/cloud-builders/gcloud'
+    args: [
+      'beta', 'run', 'deploy',
+      'gateway',
+      '--image', 'gcr.io/$PROJECT_ID/steamwheedle-cartel/run/gateway/runtime',
+      '--region', 'us-central1',
+      '--platform', 'managed',
+      '--no-allow-unauthenticated',
+      '--timeout', '600s'
+    ]
+images: [
+  'gcr.io/$PROJECT_ID/steamwheedle-cartel/run/gateway/build:latest',
+  'gcr.io/$PROJECT_ID/steamwheedle-cartel/run/gateway/runtime:latest'
+]
