@@ -87,6 +87,19 @@ func init() {
 	logging.Info("Finished init")
 }
 
+func loggingMiddleware(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+		// logging the request url and method
+		logging.WithFields(logrus.Fields{
+			"url":    req.URL,
+			"method": req.Method,
+		}).Info("Url hit")
+
+		// passing onto the next middleware
+		h.ServeHTTP(w, req)
+	})
+}
+
 func main() {
 	r := mux.NewRouter()
 	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
@@ -113,7 +126,6 @@ func main() {
 
 		logging.Info("Sent response")
 	}).Methods("POST")
-	http.Handle("/", r)
 
-	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", port), nil))
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", port), loggingMiddleware(r)))
 }
