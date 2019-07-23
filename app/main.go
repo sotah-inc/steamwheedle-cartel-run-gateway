@@ -29,6 +29,8 @@ func init() {
 		return
 	}
 
+	logging.WithField("port", parsedPort).Info("Initializing with port")
+
 	port = parsedPort
 	serviceName = os.Getenv("K_SERVICE")
 	projectId, err = metadata.Get("project/project-id")
@@ -37,6 +39,12 @@ func init() {
 
 		return
 	}
+
+	logging.WithFields(logrus.Fields{
+		"project":      projectId,
+		"service-name": serviceName,
+		"port":         port,
+	}).Info("Producing gateway state")
 
 	state, err = run.NewGatewayState(run.GatewayStateConfig{ProjectId: projectId})
 	if err != nil {
