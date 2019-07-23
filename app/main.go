@@ -11,7 +11,6 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/act"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/hell"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/logging"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/logging/stackdriver"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/state/run"
@@ -39,32 +38,7 @@ func init() {
 		return
 	}
 
-	hellClient, err := hell.NewClient(projectId)
-	if err != nil {
-		log.Fatalf("Failed to get hell client: %s", err.Error())
-
-		return
-	}
-
-	connInfo, err := hellClient.GetConnectionInfo()
-	if err != nil {
-		log.Fatalf("Failed to get current connection-info: %s", err.Error())
-
-		return
-	}
-
-	parsedNatsPort, err := strconv.Atoi(connInfo.NatsPort)
-	if err != nil {
-		log.Fatalf("Failed to parse nats port: %s", err.Error())
-
-		return
-	}
-
-	state, err = run.NewGatewayState(run.GatewayStateConfig{
-		ProjectId:     projectId,
-		MessengerHost: connInfo.NatsHost,
-		MessengerPort: parsedNatsPort,
-	})
+	state, err = run.NewGatewayState(run.GatewayStateConfig{ProjectId: projectId})
 	if err != nil {
 		log.Fatalf("Failed to generate gateway state: %s", err.Error())
 
