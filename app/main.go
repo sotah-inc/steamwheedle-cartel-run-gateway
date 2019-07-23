@@ -72,6 +72,13 @@ func main() {
 	logging.WithField("service", serviceName).Info("Initializing service")
 
 	r := mux.NewRouter()
+	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		if _, err := fmt.Fprint(w, "Hello, world!"); err != nil {
+			logging.WithField("error", err.Error()).Error("Failed to write response")
+
+			return
+		}
+	}).Methods("GET")
 	r.HandleFunc("/download-all-auctions", func(w http.ResponseWriter, r *http.Request) {
 		logging.Info("Received request")
 
