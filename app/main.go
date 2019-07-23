@@ -52,6 +52,8 @@ func init() {
 
 		return
 	}
+
+	logging.Info("Finished init")
 }
 
 func main() {
