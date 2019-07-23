@@ -109,6 +109,8 @@ func main() {
 			return
 		}
 
+		w.WriteHeader(http.StatusCreated)
+
 		logging.Info("Sent response")
 	}).Methods("POST")
 	http.Handle("/", r)
