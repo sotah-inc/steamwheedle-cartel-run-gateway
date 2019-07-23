@@ -127,5 +127,10 @@ func main() {
 		logging.Info("Sent response")
 	}).Methods("POST")
 
-	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", port), loggingMiddleware(r)))
+	if err := http.ListenAndServe(fmt.Sprintf(":%d", port), loggingMiddleware(r)); err != nil {
+		logging.WithFields(logrus.Fields{
+			"error": err.Error(),
+			"port":  port,
+		}).Fatal("Failed to start server")
+	}
 }
