@@ -22,41 +22,19 @@ var projectId string
 var state run.GatewayState
 
 func init() {
-	parsedPort, err := strconv.Atoi(os.Getenv("PORT"))
-	if err != nil {
-		log.Fatalf("Failed to get port: %s", err.Error())
+	var err error
 
-		return
-	}
-
-	logging.WithField("port", parsedPort).Info("Initializing with port")
-
-	port = parsedPort
-	serviceName = os.Getenv("K_SERVICE")
+	// resolving project-id
 	projectId, err = metadata.Get("project/project-id")
 	if err != nil {
-		log.Fatalf("Failed to get port: %s", err.Error())
+		log.Fatalf("Failed to get project-id: %s", err.Error())
 
 		return
 	}
 
-	logging.WithFields(logrus.Fields{
-		"project":      projectId,
-		"service-name": serviceName,
-		"port":         port,
-	}).Info("Producing gateway state")
+	// resolving service name
+	serviceName = os.Getenv("K_SERVICE")
 
-	state, err = run.NewGatewayState(run.GatewayStateConfig{ProjectId: projectId})
-	if err != nil {
-		log.Fatalf("Failed to generate gateway state: %s", err.Error())
-
-		return
-	}
-
-	logging.Info("Finished init")
-}
-
-func main() {
 	// establishing log verbosity
 	logVerbosity, err := logrus.ParseLevel("info")
 	if err != nil {
@@ -79,8 +57,37 @@ func main() {
 	}
 	logging.AddHook(stackdriverHook)
 
+	// done preliminary setup
 	logging.WithField("service", serviceName).Info("Initializing service")
 
+	// parsing http port
+	port, err = strconv.Atoi(os.Getenv("PORT"))
+	if err != nil {
+		log.Fatalf("Failed to get port: %s", err.Error())
+
+		return
+	}
+	logging.WithField("port", port).Info("Initializing with port")
+
+	// producing gateway state
+	logging.WithFields(logrus.Fields{
+		"project":      projectId,
+		"service-name": serviceName,
+		"port":         port,
+	}).Info("Producing gateway state")
+
+	state, err = run.NewGatewayState(run.GatewayStateConfig{ProjectId: projectId})
+	if err != nil {
+		log.Fatalf("Failed to generate gateway state: %s", err.Error())
+
+		return
+	}
+
+	// fin
+	logging.Info("Finished init")
+}
+
+func main() {
 	r := mux.NewRouter()
 	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		if _, err := fmt.Fprint(w, "Hello, world!"); err != nil {
