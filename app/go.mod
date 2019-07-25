@@ -6,5 +6,5 @@ require (
 	cloud.google.com/go v0.36.0
 	github.com/gorilla/mux v1.7.3
 	github.com/sirupsen/logrus v1.4.2
-	github.com/sotah-inc/steamwheedle-cartel v0.0.0-20190725150917-ddb228465b75
+	github.com/sotah-inc/steamwheedle-cartel v0.0.0-20190725151517-00f2ea528f5a
 )
