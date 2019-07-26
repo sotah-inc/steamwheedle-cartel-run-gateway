@@ -147,11 +147,11 @@ func main() {
 		logging.Info("Received request")
 
 		if err := state.CleanupAllAuctions(); err != nil {
-			act.WriteErroneousErrorResponse(w, "Could not call cleanup-all-manifests", err)
+			act.WriteErroneousErrorResponse(w, "Could not call cleanup-all-auctions", err)
 
 			logging.WithFields(logrus.Fields{
 				"error": err.Error(),
-			}).Error("Could not call Could not call cleanup-all-manifests")
+			}).Error("Could not call Could not call cleanup-all-auctions")
 
 			return
 		}
