@@ -139,7 +139,7 @@ func main() {
 			return
 		}
 
-		w.WriteHeader(http.StatusCreated)
+		w.WriteHeader(http.StatusOK)
 
 		logging.Info("Sent response")
 	}).Methods("POST")
