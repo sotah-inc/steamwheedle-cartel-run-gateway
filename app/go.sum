@@ -107,8 +107,8 @@ github.com/shurcooL/users v0.0.0-20180125191416-49c67e49c537/go.mod h1:QJTqeLYED
 github.com/shurcooL/webdavfs v0.0.0-20170829043945-18c3829fa133/go.mod h1:hKmq5kWdCj2z2KEozexVbfEZIWiTjhE0+UjmZgPqehw=
 github.com/sirupsen/logrus v1.4.2 h1:SPIRibHv4MatM3XXNO2BJeFLZwZ2LvZgfQ5+UNI2im4=
 github.com/sirupsen/logrus v1.4.2/go.mod h1:tLMulIdttU9McNUspp0xgXVQah82FyeX6MwdIuYE2rE=
-github.com/sotah-inc/steamwheedle-cartel v0.0.0-20190725151517-00f2ea528f5a h1:PTDxJA+jUEMnMr3joBHccEP16ykZWqlwmjFVVZjVw84=
-github.com/sotah-inc/steamwheedle-cartel v0.0.0-20190725151517-00f2ea528f5a/go.mod h1:UQiTdKBBPUTa+NkUiEc+WpOUmDX3a58MMwNhWwiijF8=
+github.com/sotah-inc/steamwheedle-cartel v0.0.0-20190726163842-061f8e3b7d92 h1:G9DXg2KlD6X7R+Hc2OYjQN0jAzTGIW4rFse3ODF7nu0=
+github.com/sotah-inc/steamwheedle-cartel v0.0.0-20190726163842-061f8e3b7d92/go.mod h1:UQiTdKBBPUTa+NkUiEc+WpOUmDX3a58MMwNhWwiijF8=
 github.com/sourcegraph/annotate v0.0.0-20160123013949-f4cad6c6324d/go.mod h1:UdhH50NIW0fCiwBSr0co2m7BnFLdv4fQTgdqdJTHFeE=
 github.com/sourcegraph/syntaxhighlight v0.0.0-20170531221838-bd320f5d308e/go.mod h1:HuIsMU8RRBOtsCgI77wP899iHVBQpCmg4ErYMZB+2IA=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
