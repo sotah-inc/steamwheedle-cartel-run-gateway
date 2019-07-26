@@ -143,6 +143,23 @@ func main() {
 
 		logging.Info("Sent response")
 	}).Methods("POST")
+	r.HandleFunc("/cleanup-all-auctions", func(w http.ResponseWriter, r *http.Request) {
+		logging.Info("Received request")
+
+		if err := state.CleanupAllAuctions(); err != nil {
+			act.WriteErroneousErrorResponse(w, "Could not call cleanup-all-manifests", err)
+
+			logging.WithFields(logrus.Fields{
+				"error": err.Error(),
+			}).Error("Could not call Could not call cleanup-all-manifests")
+
+			return
+		}
+
+		w.WriteHeader(http.StatusOK)
+
+		logging.Info("Sent response")
+	}).Methods("POST")
 
 	if err := http.ListenAndServe(fmt.Sprintf(":%d", port), loggingMiddleware(r)); err != nil {
 		logging.WithFields(logrus.Fields{
