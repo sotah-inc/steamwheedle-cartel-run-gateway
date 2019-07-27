@@ -271,19 +271,19 @@ func (b AuctionsBaseV2) DeleteAllFromTimestamps(
 				continue
 			}
 
-			//if err := obj.Delete(b.client.Context); err != nil {
-			//	entry.WithField("error", err.Error()).Error("Could not delete obj")
-			//
-			//	out <- DeleteAllFromTimestampsJob{
-			//		Err: err,
-			//		RegionRealmTimestampTuple: sotah.RegionRealmTimestampTuple{
-			//			RegionRealmTuple: sotah.NewRegionRealmTupleFromRealm(realm),
-			//			TargetTimestamp:  int(targetTimestamp),
-			//		},
-			//	}
-			//
-			//	continue
-			//}
+			if err := obj.Delete(b.client.Context); err != nil {
+				entry.WithField("error", err.Error()).Error("Could not delete obj")
+
+				out <- DeleteAllFromTimestampsJob{
+					Err: err,
+					RegionRealmTimestampTuple: sotah.RegionRealmTimestampTuple{
+						RegionRealmTuple: sotah.NewRegionRealmTupleFromRealm(realm),
+						TargetTimestamp:  int(targetTimestamp),
+					},
+				}
+
+				continue
+			}
 
 			entry.Info("Obj deleted")
 
@@ -322,7 +322,7 @@ func (b AuctionsBaseV2) DeleteAllFromTimestamps(
 		}
 
 		results.TotalCount += 1
-		results.TotalSize += 1
+		results.TotalSize += outJob.Size
 	}
 
 	return results, nil
