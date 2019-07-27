@@ -27,5 +27,11 @@ type Client struct {
 
 type DeleteAllFromTimestampsJob struct {
 	sotah.RegionRealmTimestampTuple
-	Err error
+	Err  error
+	Size int64
+}
+
+type DeleteAllResults struct {
+	TotalCount int
+	TotalSize  int64
 }

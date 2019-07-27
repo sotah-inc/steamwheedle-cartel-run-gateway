@@ -213,7 +213,7 @@ func (b AuctionsBaseV2) DeleteAllFromTimestamps(
 	timestamps []sotah.UnixTimestamp,
 	realm sotah.Realm,
 	bkt *storage.BucketHandle,
-) (int, error) {
+) (DeleteAllResults, error) {
 	// spinning up the workers
 	in := make(chan sotah.UnixTimestamp)
 	out := make(chan DeleteAllFromTimestampsJob)
@@ -256,6 +256,21 @@ func (b AuctionsBaseV2) DeleteAllFromTimestamps(
 				continue
 			}
 
+			attrs, err := obj.Attrs(b.client.Context)
+			if err != nil {
+				entry.WithField("error", err.Error()).Error("Failed to get obj attrs")
+
+				out <- DeleteAllFromTimestampsJob{
+					Err: err,
+					RegionRealmTimestampTuple: sotah.RegionRealmTimestampTuple{
+						RegionRealmTuple: sotah.NewRegionRealmTupleFromRealm(realm),
+						TargetTimestamp:  int(targetTimestamp),
+					},
+				}
+
+				continue
+			}
+
 			//if err := obj.Delete(b.client.Context); err != nil {
 			//	entry.WithField("error", err.Error()).Error("Could not delete obj")
 			//
@@ -277,7 +292,8 @@ func (b AuctionsBaseV2) DeleteAllFromTimestamps(
 					RegionRealmTuple: sotah.NewRegionRealmTupleFromRealm(realm),
 					TargetTimestamp:  int(targetTimestamp),
 				},
-				Err: nil,
+				Err:  nil,
+				Size: attrs.Size,
 			}
 		}
 	}
@@ -296,14 +312,18 @@ func (b AuctionsBaseV2) DeleteAllFromTimestamps(
 	}()
 
 	// waiting for it to drain out
-	totalDeleted := 0
+	results := DeleteAllResults{
+		TotalCount: 0,
+		TotalSize:  0,
+	}
 	for outJob := range out {
 		if outJob.Err != nil {
-			return 0, outJob.Err
+			return DeleteAllResults{}, outJob.Err
 		}
 
-		totalDeleted += 1
+		results.TotalCount += 1
+		results.TotalSize += 1
 	}
 
-	return totalDeleted, nil
+	return results, nil
 }
