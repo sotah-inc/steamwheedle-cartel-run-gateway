@@ -171,7 +171,7 @@ func main() {
 
 			logging.WithFields(logrus.Fields{
 				"error": err.Error(),
-			}).Error("Could not call Could not call cleanup-all-auctions")
+			}).Error("Could not read request body")
 
 			return
 		}
@@ -182,17 +182,17 @@ func main() {
 
 			logging.WithFields(logrus.Fields{
 				"error": err.Error(),
-			}).Error("Could not call Could not call cleanup-all-auctions")
+			}).Error("Could not decode region-realm-timestamp tuples from request body")
 
 			return
 		}
 
 		if err := state.ComputeAllLiveAuctions(tuples); err != nil {
-			act.WriteErroneousErrorResponse(w, "Could not call cleanup-all-auctions", err)
+			act.WriteErroneousErrorResponse(w, "Could not call compute-all-live-auctions", err)
 
 			logging.WithFields(logrus.Fields{
 				"error": err.Error(),
-			}).Error("Could not call Could not call cleanup-all-auctions")
+			}).Error("Could not call compute-all-live-auctions")
 
 			return
 		}
