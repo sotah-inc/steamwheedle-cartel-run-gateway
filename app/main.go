@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -13,6 +14,7 @@ import (
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/act"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/logging"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/logging/stackdriver"
+	"github.com/sotah-inc/steamwheedle-cartel/pkg/sotah"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/state/run"
 )
 
@@ -147,6 +149,45 @@ func main() {
 		logging.Info("Received request")
 
 		if err := state.CleanupAllAuctions(); err != nil {
+			act.WriteErroneousErrorResponse(w, "Could not call cleanup-all-auctions", err)
+
+			logging.WithFields(logrus.Fields{
+				"error": err.Error(),
+			}).Error("Could not call Could not call cleanup-all-auctions")
+
+			return
+		}
+
+		w.WriteHeader(http.StatusOK)
+
+		logging.Info("Sent response")
+	}).Methods("POST")
+	r.HandleFunc("/compute-all-live-auctions", func(w http.ResponseWriter, r *http.Request) {
+		logging.Info("Received request")
+
+		body, err := ioutil.ReadAll(r.Body)
+		if err != nil {
+			act.WriteErroneousErrorResponse(w, "Could not read request body", err)
+
+			logging.WithFields(logrus.Fields{
+				"error": err.Error(),
+			}).Error("Could not call Could not call cleanup-all-auctions")
+
+			return
+		}
+
+		tuples, err := sotah.NewRegionRealmTimestampTuples(string(body))
+		if err != nil {
+			act.WriteErroneousErrorResponse(w, "Could not decode region-realm-timestamp tuples from request body", err)
+
+			logging.WithFields(logrus.Fields{
+				"error": err.Error(),
+			}).Error("Could not call Could not call cleanup-all-auctions")
+
+			return
+		}
+
+		if err := state.ComputeAllLiveAuctions(tuples); err != nil {
 			act.WriteErroneousErrorResponse(w, "Could not call cleanup-all-auctions", err)
 
 			logging.WithFields(logrus.Fields{
