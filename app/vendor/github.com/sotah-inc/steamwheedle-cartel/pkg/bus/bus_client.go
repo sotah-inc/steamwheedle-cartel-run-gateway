@@ -9,6 +9,7 @@ import (
 
 	"cloud.google.com/go/pubsub"
 	"github.com/sirupsen/logrus"
+	"github.com/sotah-inc/steamwheedle-cartel/pkg/bus/codes"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/logging"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/metric"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/state/subjects"
@@ -195,6 +196,17 @@ func (c Client) Subscribe(config SubscribeConfig) error {
 			return nil
 		}
 
+		return err
+	}
+
+	return nil
+}
+
+func (c Client) ReplyToWithError(recipient Message, err error, code codes.Code) error {
+	reply := NewMessage()
+	reply.Code = code
+	reply.Err = err.Error()
+	if _, err := c.ReplyTo(recipient, reply); err != nil {
 		return err
 	}
 

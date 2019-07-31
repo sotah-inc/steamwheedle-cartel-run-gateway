@@ -205,6 +205,45 @@ func (tuple RegionRealmTuple) EncodeForDelivery() (string, error) {
 	return string(jsonEncoded), nil
 }
 
+func NewRegionRealmTuples(data string) (RegionRealmTuples, error) {
+	var out RegionRealmTuples
+	if err := json.Unmarshal([]byte(data), &out); err != nil {
+		return RegionRealmTuples{}, err
+	}
+
+	return out, nil
+}
+
+type RegionRealmTuples []RegionRealmTuple
+
+func (tuples RegionRealmTuples) EncodeForDelivery() (string, error) {
+	jsonEncoded, err := json.Marshal(tuples)
+	if err != nil {
+		return "", err
+	}
+
+	return string(jsonEncoded), nil
+}
+
+func (tuples RegionRealmTuples) ToRegionRealmSlugs() RegionRealmSlugs {
+	out := RegionRealmSlugs{}
+	for _, tuple := range tuples {
+		next := func() []blizzard.RealmSlug {
+			result, ok := out[blizzard.RegionName(tuple.RegionName)]
+			if ok {
+				return result
+			}
+
+			return []blizzard.RealmSlug{}
+		}()
+
+		next = append(next, blizzard.RealmSlug(tuple.RealmSlug))
+		out[blizzard.RegionName(tuple.RegionName)] = next
+	}
+
+	return out
+}
+
 func NewRegionRealmTimestampTuple(data string) (RegionRealmTimestampTuple, error) {
 	var out RegionRealmTimestampTuple
 	if err := json.Unmarshal([]byte(data), &out); err != nil {
@@ -268,8 +307,8 @@ func (tuples RegionRealmSummaryTuples) ItemIds() blizzard.ItemIds {
 	return out
 }
 
-func (tuples RegionRealmSummaryTuples) RegionRealmTuples() []RegionRealmTuple {
-	out := make([]RegionRealmTuple, len(tuples))
+func (tuples RegionRealmSummaryTuples) RegionRealmTuples() RegionRealmTuples {
+	out := make(RegionRealmTuples, len(tuples))
 	for i, tuple := range tuples {
 		out[i] = tuple.RegionRealmTuple
 	}
@@ -321,8 +360,8 @@ func (tuples RegionRealmTimestampTuples) EncodeForDelivery() (string, error) {
 	return string(jsonEncoded), nil
 }
 
-func (tuples RegionRealmTimestampTuples) ToRegionRealmSlugs() map[blizzard.RegionName][]blizzard.RealmSlug {
-	out := map[blizzard.RegionName][]blizzard.RealmSlug{}
+func (tuples RegionRealmTimestampTuples) ToRegionRealmSlugs() RegionRealmSlugs {
+	out := RegionRealmSlugs{}
 	for _, tuple := range tuples {
 		next := func() []blizzard.RealmSlug {
 			result, ok := out[blizzard.RegionName(tuple.RegionName)]

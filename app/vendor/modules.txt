@@ -48,7 +48,7 @@ github.com/nats-io/nkeys
 github.com/nats-io/nuid
 # github.com/sirupsen/logrus v1.4.2
 github.com/sirupsen/logrus
-# github.com/sotah-inc/steamwheedle-cartel v0.0.0-20190728181102-3800b4aa9f0e
+# github.com/sotah-inc/steamwheedle-cartel v0.0.0-20190731182748-1346e86102e3
 github.com/sotah-inc/steamwheedle-cartel/pkg/act
 github.com/sotah-inc/steamwheedle-cartel/pkg/logging
 github.com/sotah-inc/steamwheedle-cartel/pkg/logging/stackdriver
@@ -61,6 +61,7 @@ github.com/sotah-inc/steamwheedle-cartel/pkg/sotah/sortdirections
 github.com/sotah-inc/steamwheedle-cartel/pkg/sotah/sortkinds
 github.com/sotah-inc/steamwheedle-cartel/pkg/bus
 github.com/sotah-inc/steamwheedle-cartel/pkg/bus/codes
+github.com/sotah-inc/steamwheedle-cartel/pkg/database
 github.com/sotah-inc/steamwheedle-cartel/pkg/hell
 github.com/sotah-inc/steamwheedle-cartel/pkg/metric
 github.com/sotah-inc/steamwheedle-cartel/pkg/sotah/gameversions
@@ -75,11 +76,10 @@ github.com/sotah-inc/steamwheedle-cartel/pkg/blizzard/characterrace
 github.com/sotah-inc/steamwheedle-cartel/pkg/blizzard/itembinds
 github.com/sotah-inc/steamwheedle-cartel/pkg/blizzard/realmpopulations
 github.com/sotah-inc/steamwheedle-cartel/pkg/blizzard/realmtypes
-github.com/sotah-inc/steamwheedle-cartel/pkg/database
+github.com/sotah-inc/steamwheedle-cartel/pkg/database/codes
 github.com/sotah-inc/steamwheedle-cartel/pkg/hell/collections
 github.com/sotah-inc/steamwheedle-cartel/pkg/messenger
 github.com/sotah-inc/steamwheedle-cartel/pkg/metric/kinds
-github.com/sotah-inc/steamwheedle-cartel/pkg/database/codes
 github.com/sotah-inc/steamwheedle-cartel/pkg/diskstore
 github.com/sotah-inc/steamwheedle-cartel/pkg/messenger/codes
 github.com/sotah-inc/steamwheedle-cartel/pkg/resolver
