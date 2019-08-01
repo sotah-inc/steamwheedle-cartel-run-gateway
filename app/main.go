@@ -12,6 +12,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/act"
+	"github.com/sotah-inc/steamwheedle-cartel/pkg/blizzard"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/logging"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/logging/stackdriver"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/sotah"
@@ -193,6 +194,45 @@ func main() {
 			logging.WithFields(logrus.Fields{
 				"error": err.Error(),
 			}).Error("Could not call compute-all-live-auctions")
+
+			return
+		}
+
+		w.WriteHeader(http.StatusCreated)
+
+		logging.Info("Sent response")
+	}).Methods("POST")
+	r.HandleFunc("/sync-all-items", func(w http.ResponseWriter, r *http.Request) {
+		logging.Info("Received request")
+
+		body, err := ioutil.ReadAll(r.Body)
+		if err != nil {
+			act.WriteErroneousErrorResponse(w, "Could not read request body", err)
+
+			logging.WithFields(logrus.Fields{
+				"error": err.Error(),
+			}).Error("Could not read request body")
+
+			return
+		}
+
+		ids, err := blizzard.NewItemIds(string(body))
+		if err != nil {
+			act.WriteErroneousErrorResponse(w, "Could not decode item-ids from request body", err)
+
+			logging.WithFields(logrus.Fields{
+				"error": err.Error(),
+			}).Error("Could not decode item-ids from request body")
+
+			return
+		}
+
+		if err := state.SyncAllItems(ids); err != nil {
+			act.WriteErroneousErrorResponse(w, "Could not call sync-all-items", err)
+
+			logging.WithFields(logrus.Fields{
+				"error": err.Error(),
+			}).Error("Could not call sync-all-items")
 
 			return
 		}
