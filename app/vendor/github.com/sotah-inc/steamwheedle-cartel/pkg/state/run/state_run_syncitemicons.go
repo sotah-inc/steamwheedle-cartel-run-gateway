@@ -5,9 +5,7 @@ import (
 
 	"cloud.google.com/go/pubsub"
 	"cloud.google.com/go/storage"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/blizzard"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/bus"
-	"github.com/sotah-inc/steamwheedle-cartel/pkg/sotah"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/sotah/gameversions"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/state"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/state/subjects"
@@ -16,13 +14,13 @@ import (
 	"github.com/twinj/uuid"
 )
 
-type SyncItemsStateConfig struct {
+type SyncItemIconsStateConfig struct {
 	ProjectId string
 }
 
-func NewSyncItemsState(config SyncItemsStateConfig) (SyncItemsState, error) {
+func NewSyncItemIconsState(config SyncItemIconsStateConfig) (SyncItemIconsState, error) {
 	// establishing an initial state
-	sta := SyncItemsState{
+	sta := SyncItemIconsState{
 		State: state.NewState(uuid.NewV4(), true),
 	}
 
@@ -33,13 +31,13 @@ func NewSyncItemsState(config SyncItemsStateConfig) (SyncItemsState, error) {
 	if err != nil {
 		log.Fatalf("Failed to create new bus client: %s", err.Error())
 
-		return SyncItemsState{}, err
+		return SyncItemIconsState{}, err
 	}
 	sta.receiveSyncedItemsTopic, err = sta.IO.BusClient.FirmTopic(string(subjects.ReceiveSyncedItems))
 	if err != nil {
 		log.Fatalf("Failed to get firm topic: %s", err.Error())
 
-		return SyncItemsState{}, err
+		return SyncItemIconsState{}, err
 	}
 
 	// initializing a store client
@@ -47,15 +45,7 @@ func NewSyncItemsState(config SyncItemsStateConfig) (SyncItemsState, error) {
 	if err != nil {
 		log.Fatalf("Failed to create new store client: %s", err.Error())
 
-		return SyncItemsState{}, err
-	}
-
-	sta.bootBase = store.NewBootBase(sta.IO.StoreClient, regions.USCentral1)
-	sta.bootBucket, err = sta.bootBase.GetFirmBucket()
-	if err != nil {
-		log.Fatalf("Failed to get firm bucket: %s", err.Error())
-
-		return SyncItemsState{}, err
+		return SyncItemIconsState{}, err
 	}
 
 	sta.itemsBase = store.NewItemsBase(sta.IO.StoreClient, regions.USCentral1, gameversions.Retail)
@@ -63,53 +53,38 @@ func NewSyncItemsState(config SyncItemsStateConfig) (SyncItemsState, error) {
 	if err != nil {
 		log.Fatalf("Failed to get firm bucket: %s", err.Error())
 
-		return SyncItemsState{}, err
+		return SyncItemIconsState{}, err
 	}
 
-	// gathering primary-region
-	regionList, err := sta.bootBase.GetRegions(sta.bootBucket)
+	sta.itemIconsBase = store.NewItemIconsBase(sta.IO.StoreClient, regions.USCentral1, gameversions.Retail)
+	sta.itemIconsBucket, err = sta.itemIconsBase.GetFirmBucket()
 	if err != nil {
-		log.Fatalf("Failed to get regions: %s", err.Error())
+		log.Fatalf("Failed to get firm bucket: %s", err.Error())
 
-		return SyncItemsState{}, err
+		return SyncItemIconsState{}, err
 	}
-	sta.primaryRegion, err = regionList.GetPrimaryRegion()
+
+	// resolving item-icons bucket name
+	bktAttrs, err := sta.itemIconsBucket.Attrs(sta.IO.StoreClient.Context)
 	if err != nil {
-		log.Fatalf("Failed to get primary-region: %s", err.Error())
+		log.Fatalf("Failed to get bucket attrs: %s", err.Error())
 
-		return SyncItemsState{}, err
+		return SyncItemIconsState{}, err
 	}
-
-	// initializing a blizzard client
-	blizzardCredentials, err := sta.bootBase.GetBlizzardCredentials(sta.bootBucket)
-	if err != nil {
-		log.Fatalf("Failed to get blizzard-credentials: %s", err.Error())
-
-		return SyncItemsState{}, err
-	}
-
-	sta.blizzardClient, err = blizzard.NewClient(blizzardCredentials.ClientId, blizzardCredentials.ClientSecret)
-	if err != nil {
-		log.Fatalf("Failed to create blizzard client: %s", err.Error())
-
-		return SyncItemsState{}, err
-	}
+	sta.itemIconsBucketName = bktAttrs.Name
 
 	return sta, nil
 }
 
-type SyncItemsState struct {
+type SyncItemIconsState struct {
 	state.State
 
 	receiveSyncedItemsTopic *pubsub.Topic
 
-	bootBase   store.BootBase
-	bootBucket *storage.BucketHandle
-
 	itemsBase   store.ItemsBase
 	itemsBucket *storage.BucketHandle
 
-	blizzardClient blizzard.Client
-
-	primaryRegion sotah.Region
+	itemIconsBase       store.ItemIconsBase
+	itemIconsBucket     *storage.BucketHandle
+	itemIconsBucketName string
 }
