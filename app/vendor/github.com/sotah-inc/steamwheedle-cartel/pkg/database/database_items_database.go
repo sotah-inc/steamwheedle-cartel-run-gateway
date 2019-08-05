@@ -3,6 +3,7 @@ package database
 import (
 	"encoding/base64"
 	"encoding/json"
+	"fmt"
 	"strconv"
 
 	"github.com/boltdb/bolt"
@@ -10,6 +11,8 @@ import (
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/blizzard"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/logging"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/sotah"
+	"github.com/sotah-inc/steamwheedle-cartel/pkg/sotah/gameversions"
+	"github.com/sotah-inc/steamwheedle-cartel/pkg/store"
 	"github.com/sotah-inc/steamwheedle-cartel/pkg/util"
 )
 
@@ -228,6 +231,10 @@ func (idBase ItemsDatabase) PersistEncodedItems(
 
 		i := 0
 		for id, normalizedName := range idNameMap {
+			if normalizedName == "" {
+				continue
+			}
+
 			if err := itemNamesBucket.Put(itemNameKeyName(id), []byte(normalizedName)); err != nil {
 				return err
 			}
@@ -330,17 +337,26 @@ func (idBase ItemsDatabase) FilterInItemsToSync(ids blizzard.ItemIds) (ItemsSync
 				return err
 			}
 
-			if item.Icon != "" && (item.IconURL == "" || item.IconObjectName == "") {
-				iconItemIds := func() blizzard.ItemIds {
-					out, ok := iconsToSync[item.Icon]
-					if !ok {
-						return blizzard.ItemIds{}
-					}
+			if item.Icon != "" {
+				correctIconObjectName := fmt.Sprintf("%s/%s.jpg", gameversions.Retail, item.Icon)
+				correctIconURL := fmt.Sprintf(store.ItemIconURLFormat, "sotah-item-icons", correctIconObjectName)
 
-					return out
-				}()
-				iconItemIds = append(iconItemIds, id)
-				iconsToSync[item.Icon] = iconItemIds
+				shouldInclude := item.IconURL == "" ||
+					item.IconObjectName == "" ||
+					item.IconObjectName != correctIconObjectName ||
+					item.IconURL != correctIconURL
+				if shouldInclude {
+					iconItemIds := func() blizzard.ItemIds {
+						out, ok := iconsToSync[item.Icon]
+						if !ok {
+							return blizzard.ItemIds{}
+						}
+
+						return out
+					}()
+					iconItemIds = append(iconItemIds, id)
+					iconsToSync[item.Icon] = iconItemIds
+				}
 			}
 
 			if item.NormalizedName == "" {
