@@ -202,6 +202,45 @@ func main() {
 
 		logging.Info("Sent response")
 	}).Methods("POST")
+	r.HandleFunc("/compute-all-pricelist-histories", func(w http.ResponseWriter, r *http.Request) {
+		logging.Info("Received request")
+
+		body, err := ioutil.ReadAll(r.Body)
+		if err != nil {
+			act.WriteErroneousErrorResponse(w, "Could not read request body", err)
+
+			logging.WithFields(logrus.Fields{
+				"error": err.Error(),
+			}).Error("Could not read request body")
+
+			return
+		}
+
+		tuples, err := sotah.NewRegionRealmTimestampTuples(string(body))
+		if err != nil {
+			act.WriteErroneousErrorResponse(w, "Could not decode region-realm-timestamp tuples from request body", err)
+
+			logging.WithFields(logrus.Fields{
+				"error": err.Error(),
+			}).Error("Could not decode region-realm-timestamp tuples from request body")
+
+			return
+		}
+
+		if err := state.ComputeAllPricelistHistories(tuples); err != nil {
+			act.WriteErroneousErrorResponse(w, "Could not call compute-all-live-auctions", err)
+
+			logging.WithFields(logrus.Fields{
+				"error": err.Error(),
+			}).Error("Could not call compute-all-live-auctions")
+
+			return
+		}
+
+		w.WriteHeader(http.StatusCreated)
+
+		logging.Info("Sent response")
+	}).Methods("POST")
 	r.HandleFunc("/sync-all-items", func(w http.ResponseWriter, r *http.Request) {
 		logging.Info("Received request")
 
