@@ -228,11 +228,11 @@ func main() {
 		}
 
 		if err := state.ComputeAllPricelistHistories(tuples); err != nil {
-			act.WriteErroneousErrorResponse(w, "Could not call compute-all-live-auctions", err)
+			act.WriteErroneousErrorResponse(w, "Could not call compute-all-pricelist-histories", err)
 
 			logging.WithFields(logrus.Fields{
 				"error": err.Error(),
-			}).Error("Could not call compute-all-live-auctions")
+			}).Error("Could not call compute-all-pricelist-histories")
 
 			return
 		}
