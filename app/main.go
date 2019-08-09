@@ -280,6 +280,23 @@ func main() {
 
 		logging.Info("Sent response")
 	}).Methods("POST")
+	r.HandleFunc("/cleanup-all-pricelist-histories", func(w http.ResponseWriter, r *http.Request) {
+		logging.Info("Received request")
+
+		if err := state.CleanupAllPricelistHistories(); err != nil {
+			act.WriteErroneousErrorResponse(w, "Could not call cleanup-all-pricelist-histories", err)
+
+			logging.WithFields(logrus.Fields{
+				"error": err.Error(),
+			}).Error("Could not call Could not call cleanup-all-pricelist-histories")
+
+			return
+		}
+
+		w.WriteHeader(http.StatusOK)
+
+		logging.Info("Sent response")
+	}).Methods("POST")
 
 	if err := http.ListenAndServe(fmt.Sprintf(":%d", port), loggingMiddleware(r)); err != nil {
 		logging.WithFields(logrus.Fields{
