@@ -298,6 +298,8 @@ func main() {
 		logging.Info("Sent response")
 	}).Methods("POST")
 
+	logging.Info("Starting listener")
+
 	if err := http.ListenAndServe(fmt.Sprintf(":%d", port), loggingMiddleware(r)); err != nil {
 		logging.WithFields(logrus.Fields{
 			"error": err.Error(),
